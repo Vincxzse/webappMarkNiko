@@ -18,6 +18,23 @@ const firebaseConfig = {
   const auth=getAuth();
   const db=getFirestore();
 
+
+
+  const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li a');
+
+  allSideMenu.forEach(item=> {
+      const li = item.parentElement;
+  
+      item.addEventListener('click', function () {
+          allSideMenu.forEach(i=> {
+              i.parentElement.classList.remove('active');
+          })
+          li.classList.add('active');
+      })
+  });
+
+
+
   onAuthStateChanged(auth, (user)=>{
     const loggedInUserId=localStorage.getItem('loggedInUserId');
     if(loggedInUserId){

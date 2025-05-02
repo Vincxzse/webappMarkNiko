@@ -10,7 +10,7 @@
     <script type="module" src="../login page/firebaseauth.js"></script>
 </head>
 <body>
-    <div class="container" id="signup" style="display:none;">
+    <!-- <div class="container" id="signup" style="display:none;">
       <h1 class="form-title">Register</h1>
       <form method="post" action="">
         <div id="signUpMessage" class="messageDiv" style="display:none;"></div>
@@ -47,6 +47,38 @@
         <p>Already Have Account ?</p>
         <button id="signInButton">Sign In</button>
       </div>
-    </div>
+    </div> -->
      
+    <div class="container" id="signup">
+
+      <h1 class="form-title">Register</h1>
+      <form method="post" action="">
+        <div id="signUpMessage" class="messageDiv" style="display:none;"></div>
+        <div class="input-group">
+           <i class="fas fa-user"></i>
+           <input type="text" id="fName" placeholder="First Name" required>
+        </div>
+        <div class="input-group">
+            <i class="fas fa-user"></i>
+            <input type="text" id="lName" placeholder="Last Name" required>
+        </div>
+        <div class="input-group">
+            <input type="email" id="pEmail" placeholder="Email" required>
+            <i class='bx bxs-user'></i>
+        </div>
+        <div class="input-group">
+            <input type="password" id="rPassword" placeholder="Password" required>
+            <i class='bx bxs-lock-alt'></i>
+        </div>
+       <button class="btn" id="submitSignUp">Create Account</button>
+      </form>
+      <p class="or">
+        ____________________________________
+    </p><br/>
+    
+      <div class="links">
+        <p>Already Have Account ?</p>
+        <button id="signInButton">Log In</button>
+      </div>
+    </div>
 </body>

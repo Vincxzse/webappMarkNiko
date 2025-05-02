@@ -93,20 +93,4 @@ signIn.addEventListener('click', (event)=>{
   })
 })
 
-// document.addEventListener("DOMContentLoaded", ()=> {
-//     const loginForm = document.querySelector("#LogIn");
-//     const createAccountForm = document.querySelector("#signup");
-
-//     document.querySelector("#signUpButton") .addEventListener("click", e =>{
-//         e.preventDefault();
-//         loginForm.classList.add("form-hidden");
-//         createAccountForm.classList.remove("form--hidden");
-//     });
-    
-//     document.querySelector("#submitSignup") .addEventListener("click", e  =>{
-//         e.preventDefault();
-//         loginForm.classlist.remove("form-hidden");
-//         createAccountForm.classList.add("form--hidden");
-//     });
-// });
 
