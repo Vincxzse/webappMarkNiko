@@ -2,6 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import{getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"
 import{getFirestore,setDoc, doc} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+// import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -27,7 +28,7 @@ function showMessage(message, divId){
       messageDiv.style.opacity=0;
   },5000);
 }
-const signUp=document.getElementById('submitSignUp');
+const signUp=document.getElementById('submitSignIn');
 signUp.addEventListener('click', (event)=>{
   event.preventDefault();
   const email=document.getElementById('pEmail').value;
