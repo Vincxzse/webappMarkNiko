@@ -27,7 +27,7 @@ function showMessage(message, divId){
       messageDiv.style.opacity=0;
   },5000);
 }
-const signUp=document.getElementById('signUpButton');
+const signUp=document.getElementById('submitSignUp');
 signUp.addEventListener('click', (event)=>{
   event.preventDefault();
   const email=document.getElementById('pEmail').value;
@@ -50,7 +50,7 @@ signUp.addEventListener('click', (event)=>{
       const docRef=doc(db, "users", user.uid);
       setDoc(docRef,userData)
       .then(()=>{
-          window.location.href='../index.html';
+          window.location.href='./index.html';
       })
       .catch((error)=>{
           console.error("error writing document", error);
