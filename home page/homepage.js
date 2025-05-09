@@ -62,15 +62,16 @@ const firebaseConfig = {
     }
   })
 
-  const logoutButton=document.getElementById('logout');
+  const logoutButton = document.getElementById('logout');
 
-  logoutButton.addEventListener('click',()=>{
-    localStorage.removeItem('loggedInUserId');
-    signOut(auth)
-    .then(()=>{
-        window.location.href='../login page/index.html';
-    })
-    .catch((error)=>{
-        console.error('Error Signing out:', error);
-    })
-  })
+  logoutButton.addEventListener('click', (e) => {
+      e.preventDefault(); 
+      localStorage.removeItem('loggedInUserId');
+      signOut(auth)
+          .then(() => {
+              window.location.href = '../login page/index.html';
+          })
+          .catch((error) => {
+              console.error('Error Signing out:', error);
+          });
+  });
