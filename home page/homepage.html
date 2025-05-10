@@ -49,4 +49,48 @@
    </ul>
 
     </section>
-    
+
+    <div class="content">
+      <div class="profile-container">
+        <div class="profile-image-upload">
+          <div class="avatar">
+            <img id="profilePic" src="default-avatar.png" alt="Avatar">
+          </div>
+          <label for="uploadProfile" class="upload-label">UPLOAD IMAGE</label>
+          <input type="file" id="uploadProfile" hidden>
+        </div>
+
+        <h2 id="userName">Loading...</h2>
+        <p class="student-id" id="studentID">Loading...</p>
+        <p class="role">Student</p>
+
+        <div class="vehicle-info">
+          <div class="info-field">
+            <label>Plate No.</label>
+            <input type="text" id="plate" placeholder="Enter Plate No.">
+          </div>
+          <div class="info-field image-upload">
+            <label>Vehicle Image</label>
+            <img id="vehicleImagePreview" src="vehicle-sample.png" class="vehicle-image" />
+            <input type="file" id="vehicleImageInput" />
+          </div>
+          <div class="info-field">
+            <label>Color</label>
+            <input type="text" id="color" placeholder="Enter Color">
+          </div>
+          <div class="info-field">
+            <label>Model</label>
+            <input type="text" id="model" placeholder="Enter Model">
+          </div>
+          <div class="info-field">
+            <label>Vehicle Type</label>
+            <input type="text" id="type" placeholder="Enter Vehicle Type">
+          </div>
+        </div>
+
+        <button class="save-btn" onclick="saveProfile()">SAVE</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
