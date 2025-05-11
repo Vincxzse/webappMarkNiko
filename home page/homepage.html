@@ -1,3 +1,4 @@
+----- ✅ homepage.html (updated) -----
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,67 +15,57 @@
         <h1>DLC VEHICLES MONITORING</h1>
     </header>
     <section id="sidebar">
-    <a href="#" class="brand">
-  
-    </a>
-   <ul class="side-menu top">
-    <li class="active">
-        <a href="#">
-            <i class='bx bxs-dashboard'></i>
-            <span class="text">Dashboard</span>
-        </a>
-    </li>
-    <li>
-        <a href="#">
-            <i class='bx bxs-group' ></i>
-            <span class="text">Profile</span>
-        </a>
-    </li>
-    <li>
-        <a href="#">
-            <i class='bx bxs-cog'></i>
-            <span class="text">Settings</span>
-        </a>
-    </li>
-    <li>
-        <a href="#" id="logout">
-            <i class='bx bx-log-out'></i>
-            <span class="text">Logout</span>
-        </a>
-    </li>
- 
-
-
-   </ul>
-
+        <ul class="side-menu top">
+            <li class="active">
+                <a href="#">
+                    <i class='bx bxs-dashboard'></i>
+                    <span class="text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bxs-group'></i>
+                    <span class="text">Profile</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bxs-cog'></i>
+                    <span class="text">Settings</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="logout">
+                    <i class='bx bx-log-out'></i>
+                    <span class="text">Logout</span>
+                </a>
+            </li>
+        </ul>
     </section>
 
     <div class="content">
       <div class="profile-container">
         <div class="profile-image-upload">
           <div class="avatar">
-            <img id="profilePic" src="default-avatar.png" >
+            <img id="profilePic" src="../pictures/pogi.jpg" alt="Profile Picture" class="logo">
+
+<!-- Hidden Input for Upload -->
+<input type="file" id="uploadProfile" hidden>
+<label for="uploadProfile" class="upload-label">Upload New Profile</label>
           </div>
           <label for="uploadProfile" class="upload-label">UPLOAD IMAGE</label>
           <input type="file" id="uploadProfile" hidden>
         </div>
 
         <h2 id="userName">Loading...</h2>
-<p class="student-id" id="studentID">Loading...</p>
-<p id="studentCourse">Loading...</p> <!-- 🔹 NEW -->
-<p id="studentYearSection">Loading...</p> 
-        <p class="role">Student</p>
-        
+        <p class="student-id" id="studentID">Loading...</p>
+        <p id="studentCourse">Loading...</p>
+        <p id="studentYearSection">Loading...</p>
 
         <div class="vehicle-info">
           <div class="info-field">
             <label>Plate No.</label>
             <input type="text" id="plate" placeholder="Enter Plate No.">
-          </div>
-          <div class="info-field image-upload">
-            <label>Vehicle Image</label>
-            <img id="vehicleImagePreview" src="vehicle-sample.png" class="vehicle-image" />
-            <input type="file" id="vehicleImageInput" />
           </div>
           <div class="info-field">
             <label>Color</label>
@@ -93,6 +84,7 @@
         <button class="save-btn" onclick="saveProfile()">SAVE</button>
       </div>
     </div>
-  </div>
 </body>
 </html>
+
+

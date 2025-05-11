@@ -1,57 +1,53 @@
-// ✅ Firebase SDK imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, getDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-// ✅ Your Firebase config
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyB_rXWCXqQdi6tshyUiKLiDfSKqMzqu6KQ",
   authDomain: "login-b3b32.firebaseapp.com",
   projectId: "login-b3b32",
-  storageBucket: "login-b3b32.appspot.com", // corrected
+  storageBucket: "login-b3b32.appspot.com",
   messagingSenderId: "1078150727311",
   appId: "1:1078150727311:web:42c7bde4a5482c5daad2fa",
-  databaseURL: "https://login-b3b32-default-rtdb.firebaseio.com" // ensure Realtime DB is enabled
+  databaseURL: "https://login-b3b32-default-rtdb.firebaseio.com/"
 };
 
-// ✅ Initialize Firebase
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const rtdb = getDatabase(app);
 const storage = getStorage(app);
 
-// ✅ Sidebar highlight logic (unchanged)
-const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li a');
-allSideMenu.forEach(item => {
+// Sidebar toggle
+document.querySelectorAll('#sidebar .side-menu.top li a').forEach(item => {
   const li = item.parentElement;
-  item.addEventListener('click', function () {
-    allSideMenu.forEach(i => i.parentElement.classList.remove('active'));
+  item.addEventListener('click', () => {
+    document.querySelectorAll('#sidebar .side-menu.top li').forEach(i => i.classList.remove('active'));
     li.classList.add('active');
   });
 });
 
-// ✅ On Auth
+// Global variable for profile image
+let selectedImageFile = null;
+
+// Auth check and data loading
 onAuthStateChanged(auth, user => {
-  const loggedInUserId = localStorage.getItem('loggedInUserId');
-  if (loggedInUserId && user) {
-    // 🔹 Firestore user info
-    const docRef = doc(db, "users", loggedInUserId);
+  if (user) {
+    const uid = user.uid;
+    const docRef = doc(db, "users", uid);
+    const userRef = ref(rtdb, 'students/' + uid);
+
     getDoc(docRef).then(docSnap => {
       if (docSnap.exists()) {
         const userData = docSnap.data();
-        document.getElementById('loggedUserFName').innerText = userData.firstName;
-        document.getElementById('loggedUserEmail').innerText = userData.email;
-        document.getElementById('loggedUserLName').innerText = userData.lastName;
-      } else {
-        console.log("No Firestore user document found");
+        document.getElementById('userName').innerText = `${userData.firstName} ${userData.lastName}`;
       }
     });
 
-    // 🔹 Realtime Database vehicle/profile data
-    const userRef = ref(rtdb, 'students/' + loggedInUserId);
     get(userRef).then(snapshot => {
       const data = snapshot.val();
       if (!data) return;
@@ -60,72 +56,106 @@ onAuthStateChanged(auth, user => {
       document.getElementById("color").value = data.color || "";
       document.getElementById("model").value = data.model || "";
       document.getElementById("type").value = data.type || "";
-      document.getElementById("userName").innerText = data.fullName || "Name";
-      document.getElementById("studentID").innerText = data.studentID || "StudentID N/A";
+      document.getElementById("studentID").innerText = data.studentID || "N/A";
       document.getElementById("studentCourse").innerText = "Course: " + (data.course || "N/A");
       document.getElementById("studentYearSection").innerText = "Year/Section: " + (data.yearSection || "N/A");
-
 
       if (data.profileImageURL) {
         document.getElementById("profilePic").src = data.profileImageURL;
       }
-
-      if (data.vehicleImageURL) {
-        document.getElementById("vehicleImagePreview").src = data.vehicleImageURL;
-      }
     });
 
-    // 🔹 Profile Image Upload
+    // Profile image selection (but not upload yet)
     document.getElementById("uploadProfile").addEventListener("change", e => {
-      const file = e.target.files[0];
-      const profilePath = storageRef(storage, 'profiles/' + loggedInUserId + '.jpg');
-      uploadBytes(profilePath, file)
-        .then(() => getDownloadURL(profilePath))
-        .then(url => {
-          update(userRef, { profileImageURL: url });
-          document.getElementById("profilePic").src = url;
-        });
+      selectedImageFile = e.target.files[0];
+      if (!selectedImageFile) return;
+
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        document.getElementById("profilePic").src = event.target.result;
+      };
+      reader.readAsDataURL(selectedImageFile);
     });
 
-    // 🔹 Vehicle Image Upload
-    document.getElementById("vehicleImageInput").addEventListener("change", e => {
-      const file = e.target.files[0];
-      const vehiclePath = storageRef(storage, 'vehicles/' + loggedInUserId + '.jpg');
-      uploadBytes(vehiclePath, file)
-        .then(() => getDownloadURL(vehiclePath))
-        .then(url => {
-          update(userRef, { vehicleImageURL: url });
-          document.getElementById("vehicleImagePreview").src = url;
-        });
-    });
-
-    // 🔹 Save vehicle profile info
+    // Save profile info and upload image
     window.saveProfile = () => {
+      if (!uid) {
+        alert("User not authenticated.");
+        return;
+      }
+
+      const userRef = ref(rtdb, 'students/' + uid);
       const updates = {
         plate: document.getElementById("plate").value,
         color: document.getElementById("color").value,
         model: document.getElementById("model").value,
-        type: document.getElementById("type").value
+        type: document.getElementById("type").value,
+        studentID: document.getElementById("studentID").innerText,
+        course: document.getElementById("studentCourse").innerText.replace('Course: ', ''),
+        yearSection: document.getElementById("studentYearSection").innerText.replace('Year/Section: ', ''),
+        fullName: document.getElementById("userName").innerText
       };
-      update(userRef, updates).then(() => {
-        alert("Vehicle Profile updated.");
-      });
+
+      if (selectedImageFile) {
+        const imagePath = storageRef(storage, 'UserImage/' + uid + '.jpg');
+
+        uploadBytes(imagePath, selectedImageFile)
+          .then(() => getDownloadURL(imagePath))
+          .then(url => {
+            updates.profileImageURL = url;
+            return update(userRef, updates);
+          })
+          .then(() => {
+            alert("Profile info and image saved.");
+            selectedImageFile = null;
+          })
+          .catch(error => {
+            console.error("Image upload error:", error);
+            alert("Error uploading image: " + error.message);
+          });
+      } else {
+        update(userRef, updates)
+          .then(() => alert("Profile info saved."))
+          .catch(error => {
+            console.error("Profile update error:", error);
+            alert("Error saving profile: " + error.message);
+          });
+      }
     };
 
+    // General file upload
+    document.getElementById("generalFileInput")?.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const fileName = `${Date.now()}_${file.name}`;
+      const filePath = storageRef(storage, 'UploadedFiles/' + fileName);
+
+      uploadBytes(filePath, file)
+        .then(() => getDownloadURL(filePath))
+        .then(url => {
+          const fileData = {
+            name: file.name,
+            uploadedAt: new Date().toISOString(),
+            url: url
+          };
+          const fileRef = ref(rtdb, 'uploadedFiles/' + uid + '/' + fileName.replace(/\./g, '_'));
+          return update(fileRef, fileData);
+        })
+        .then(() => alert("File uploaded and saved."))
+        .catch(console.error);
+    });
+
   } else {
-    console.log("User ID not found in local storage or not logged in.");
     window.location.href = "../login page/index.html";
   }
 });
 
-// ✅ Logout button
-const logoutButton = document.getElementById('logout');
-logoutButton.addEventListener('click', e => {
+// Logout
+document.getElementById('logout')?.addEventListener('click', e => {
   e.preventDefault();
   localStorage.removeItem('loggedInUserId');
   signOut(auth).then(() => {
     window.location.href = '../login page/index.html';
-  }).catch(error => {
-    console.error('Error Signing out:', error);
   });
 });

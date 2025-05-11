@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student & Vehicle Information</title>
+  <link rel="stylesheet" href="../login page/style.css" />
+  <script type="module" src="../registration/registration.js"></script>
+</head>
+<body>
+  <div class="form-container">
+    <h1>Student & Vehicle Information</h1>
+
+    <form id="studentVehicleForm" novalidate>
+      <div id="signUpMessage" style="display:none; background-color: red; padding: 10px; color: white; margin-bottom: 10px; border-radius: 5px;"></div>
+
+      <div class="row">
+        <input type="text" id="studentID" placeholder="Student Number" required />
+      </div>
+
+      <div class="row">
+        <input type="text" id="course" placeholder="Course" required />
+        <input type="text" id="yearSection" placeholder="Section" required />
+      </div>
+
+      <div class="row">
+        <input type="text" id="model" placeholder="Vehicle Model" required />
+        <input type="text" id="plate" placeholder="Plate Number" required />
+      </div>
+
+      <div class="row">
+        <input type="text" id="color" placeholder="Vehicle Color" required />
+        <input type="text" id="type" placeholder="Vehicle Type" required />
+      </div>
+
+      <button type="submit" id="submitSignUp">Submit</button>
+    </form>
+  </div>
+</body>
+</html>
