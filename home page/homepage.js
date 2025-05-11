@@ -60,6 +60,11 @@ onAuthStateChanged(auth, user => {
       document.getElementById("color").value = data.color || "";
       document.getElementById("model").value = data.model || "";
       document.getElementById("type").value = data.type || "";
+      document.getElementById("userName").innerText = data.fullName || "Name";
+      document.getElementById("studentID").innerText = data.studentID || "StudentID N/A";
+      document.getElementById("studentCourse").innerText = "Course: " + (data.course || "N/A");
+      document.getElementById("studentYearSection").innerText = "Year/Section: " + (data.yearSection || "N/A");
+
 
       if (data.profileImageURL) {
         document.getElementById("profilePic").src = data.profileImageURL;

@@ -31,10 +31,14 @@ function showMessage(message, divId){
 const signUp=document.getElementById('submitSignIn');
 signUp.addEventListener('click', (event)=>{
   event.preventDefault();
-  const email=document.getElementById('pEmail').value;
-  const password=document.getElementById('rPassword').value;
-  const firstName=document.getElementById('fName').value;
-  const lastName=document.getElementById('lName').value;
+  const fName = document.getElementById("fName").value.trim();
+  const lName = document.getElementById("lName").value.trim();
+  const contact = document.getElementById("contact").value.trim();
+  const studentID = document.getElementById("studentID").value.trim();
+  const address = document.getElementById("address").value.trim();
+  const email = document.getElementById("pEmail").value.trim();
+  const password = document.getElementById("rPassword").value.trim();
+  const confirmPassword = document.getElementById("confirmPassword").value.trim();
 
   const auth=getAuth();
   const db=getFirestore();
@@ -93,9 +97,6 @@ signIn.addEventListener('click', (event)=>{
       }
   })
 })
-
-
-
 
 
 
