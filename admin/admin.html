@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="../home page/style.css" />
+  <script type="module" src="admin.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <img src="../pictures/dhvsu_logo.png" alt="Logo" class="logo" />
+    <h1>ADMIN DASHBOARD</h1>
+  </header>
+
+  <section id="sidebar">
+    <ul class="side-menu top">
+      <li class="active">
+        <a href="#">
+          <i class='bx bxs-dashboard'></i>
+          <span class="text">Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" id="logout">
+          <i class='bx bx-log-out'></i>
+          <span class="text">Logout</span>
+        </a>
+      </li>
+    </ul>
+  </section>
+
+  <div class="content">
+    <div class="profile-container" id="adminContainer">
+      <h2>Registered User Profile</h2>
+      <select id="userSelect">
+        <option value="">Select a user</option>
+      </select>
+
+      <div class="profile-image-upload">
+        <div class="avatar">
+          <img id="profilePic" src="default-avatar.png" />
+        </div>
+      </div>
+
+      <h2 id="userName">Select a user</h2>
+      <p class="student-id" id="studentID">-</p>
+      <p id="studentCourse">-</p>
+      <p id="studentYearSection">-</p>
+
+      <div class="vehicle-info">
+        <div class="info-field">
+          <label>Plate No.</label>
+          <input type="text" id="plate" disabled>
+        </div>
+        <div class="info-field">
+          <label>Color</label>
+          <input type="text" id="color" disabled>
+        </div>
+        <div class="info-field">
+          <label>Model</label>
+          <input type="text" id="model" disabled>
+        </div>
+        <div class="info-field">
+          <label>Vehicle Type</label>
+          <input type="text" id="type" disabled>
+        </div>
+      </div>
+
+      <div class="button-group" style="display: flex; justify-content: space-between; margin-top: 20px;">
+        <button class="edit-btn" onclick="enableEdit()">EDIT</button>
+        <button class="save-btn" id="saveBtn" onclick="saveProfile()" disabled>SAVE</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

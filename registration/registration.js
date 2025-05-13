@@ -79,13 +79,14 @@ window.addEventListener("DOMContentLoaded", () => {
       const color = document.getElementById("color").value.trim();
       const model = document.getElementById("model").value.trim();
       const type = document.getElementById("type").value.trim();
+      const role = document.getElementById("accountType").value;
 
       if (!email || !password) {
         showMessage("Session expired. Please restart the registration.", "signUpMessage");
         return;
       }
-      if (!studentID || !course || !yearSection || !plate || !color || !model || !type) {
-        showMessage("Please fill all student and vehicle fields.", "signUpMessage");
+      if (!studentID || !course || !yearSection || !plate || !color || !model || !type || !role) {
+        showMessage("Please fill all required fields.", "signUpMessage");
         return;
       }
 
@@ -93,6 +94,7 @@ window.addEventListener("DOMContentLoaded", () => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
+        // Save to Firestore
         await setDoc(doc(db, "users", user.uid), {
           firstName: fName,
           lastName: lName,
@@ -105,9 +107,11 @@ window.addEventListener("DOMContentLoaded", () => {
           plate,
           color,
           model,
-          type
+          type,
+          role
         });
 
+        // Save to Realtime Database
         await set(ref(rtdb, "students/" + user.uid), {
           firstName: fName,
           lastName: lName,
@@ -122,6 +126,7 @@ window.addEventListener("DOMContentLoaded", () => {
           color,
           model,
           type,
+          role,
           profileImageURL: "",
           vehicleImageURL: ""
         });

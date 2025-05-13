@@ -73,30 +73,44 @@ signUp.addEventListener('click', (event)=>{
   })
 });
 
-const signIn=document.getElementById('submitSignIn');
-signIn.addEventListener('click', (event)=>{
+const signIn = document.getElementById('submitSignIn');
+signIn.addEventListener('click', async (event) => {
   event.preventDefault();
-  const email=document.getElementById('email').value;
-  const password=document.getElementById('password').value;
-  const auth=getAuth();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const auth = getAuth();
 
-  signInWithEmailAndPassword(auth, email,password)
-  .then((userCredential)=>{
-      showMessage('login is successful', 'signInMessage');
-      const user=userCredential.user;
-      localStorage.setItem('loggedInUserId', user.uid);
-      window.location.href='../home page/homepage.html';
-  })
-  .catch((error)=>{
-      const errorCode=error.code;
-      if(errorCode==='auth/invalid-credential'){
-          showMessage('Incorrect Email or Password', 'signInMessage');
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    const uid = user.uid;
+
+    localStorage.setItem('loggedInUserId', uid);
+    showMessage('Login is successful', 'signInMessage');
+
+    // ✅ Check role in Realtime Database
+    const { getDatabase, ref, get } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js");
+    const db = getDatabase();
+    const snapshot = await get(ref(db, "students/" + uid));
+
+    if (snapshot.exists()) {
+      const userData = snapshot.val();
+      if (userData.role === "admin") {
+        window.location.href = "../admin/admin.html";
+      } else {
+        window.location.href = "../home page/homepage.html";
       }
-      else{
-          showMessage('Account does not Exist', 'signInMessage');
-      }
-  })
-})
+    } else {
+      window.location.href = "../home page/homepage.html"; // fallback if no data
+    }
 
-
-
+  } catch (error) {
+    const errorCode = error.code;
+    if (errorCode === 'auth/invalid-credential') {
+      showMessage('Incorrect Email or Password', 'signInMessage');
+    } else {
+      showMessage('Account does not Exist', 'signInMessage');
+    }
+    console.error(error);
+  }
+});

@@ -64,6 +64,26 @@ onAuthStateChanged(auth, user => {
         document.getElementById("profilePic").src = data.profileImageURL;
       }
     });
+    function Upload_files(){
+      const fileInput = document.querySelector('#file')
+      const file = fileInput.file[0];
+
+      if (file){
+       const storageRef = ref(storage,"uploads/" + file.name)
+       const uploadTask = uploadBytesResumble(storsgeRef,file)
+       const upload = document.querySelector('upload-label');
+
+      // uploadTask.on ('state_changed' , (snapshot)=>{
+      // const uploadlabel = (snapshot.bytesTransferred/snapshot.totalBytes) * 100;
+      // console.log ("Upload" + Upload + "% Done");
+      // })
+      }else{
+        console.log('no file');
+      }
+      
+    }
+    const upload_btn = document.querySelector('#uploadProfile')
+    upload_btn.addEventListener('click',Upload_files)
 
     // Profile image selection (but not upload yet)
     document.getElementById("uploadProfile").addEventListener("change", e => {
@@ -159,3 +179,4 @@ document.getElementById('logout')?.addEventListener('click', e => {
     window.location.href = '../login page/index.html';
   });
 });
+
