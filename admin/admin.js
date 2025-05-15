@@ -1,7 +1,10 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+import { getDatabase, ref, get, remove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+import {getFirestore,doc,deleteDoc} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyB_rXWCXqQdi6tshyUiKLiDfSKqMzqu6KQ",
   authDomain: "login-b3b32.firebaseapp.com",
@@ -15,21 +18,93 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
+const firestore = getFirestore(app);
 
-const userSelect = document.getElementById("userSelect");
-const profilePic = document.getElementById("profilePic");
-const userName = document.getElementById("userName");
-const studentID = document.getElementById("studentID");
-const studentCourse = document.getElementById("studentCourse");
-const studentYearSection = document.getElementById("studentYearSection");
-const plate = document.getElementById("plate");
-const color = document.getElementById("color");
-const model = document.getElementById("model");
-const type = document.getElementById("type");
-const saveBtn = document.getElementById("saveBtn");
 
-let selectedUID = null;
+// Section Elements
+const dashboardSection = document.getElementById("dashboardSection");
+const listUserSection = document.getElementById("listUserSection");
+const settingsSection = document.getElementById("settingsSection");
 
+// Nav Buttons
+const dashboardBtn = document.getElementById("dashboardBtn");
+const listUsersBtn = document.getElementById("listUsersBtn");
+const settingsBtn = document.getElementById("settingsBtn");
+
+// Navigation logic
+function showSection(section) {
+  dashboardSection.style.display = "none";
+  listUserSection.style.display = "none";
+  settingsSection.style.display = "none";
+  section.style.display = "block";
+}
+
+function setActiveTab(activeBtn) {
+  document.querySelectorAll(".side-menu.top li").forEach(li => li.classList.remove("active"));
+  activeBtn.parentElement.classList.add("active");
+}
+
+// Event Listeners
+dashboardBtn?.addEventListener("click", (e) => {
+  e.preventDefault();
+  showSection(dashboardSection);
+  setActiveTab(dashboardBtn);
+});
+
+listUsersBtn?.addEventListener("click", async (e) => {
+  e.preventDefault();
+  showSection(listUserSection);
+  setActiveTab(listUsersBtn);
+  await populateUserTable();
+});
+
+settingsBtn?.addEventListener("click", (e) => {
+  e.preventDefault();
+  showSection(settingsSection);
+  setActiveTab(settingsBtn);
+});
+
+// Populate user table
+async function populateUserTable() {
+  const tbody = document.querySelector("#userTable tbody");
+  tbody.innerHTML = "";
+
+  const snapshot = await get(ref(db, "students"));
+  if (!snapshot.exists()) return;
+
+  const users = snapshot.val();
+
+  Object.entries(users).forEach(([uid, user]) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${user.fullName || "-"}</td>
+      <td>${user.studentID || "-"}</td>
+      <td>${user.course || "-"}</td>
+      <td>${user.yearSection || "-"}</td>
+      <td>
+        <button onclick="deleteUser('${uid}')">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+// Delete user
+window.deleteUser = async function(uid) {
+  const confirmDelete = confirm("Are you sure you want to delete this user?");
+  if (!confirmDelete) return;
+
+  try {
+    await remove(ref(db, "students/" + uid));
+    alert("User deleted successfully.");
+    populateUserTable(); // Refresh after deletion
+  } catch (error) {
+    console.error("Delete error:", error);
+    alert("Failed to delete user.");
+  }
+};
+
+// Auth Check
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "../login page/index.html";
@@ -43,83 +118,10 @@ onAuthStateChanged(auth, async (user) => {
   if (!userData || userData.role !== "admin") {
     alert("Access denied. Admins only.");
     window.location.href = "../login page/index.html";
-    return;
   }
-
-  const studentsRef = ref(db, "students");
-  const snapshot = await get(studentsRef);
-  if (!snapshot.exists()) return;
-
-  const data = snapshot.val();
-
-  Object.entries(data).forEach(([uid, u]) => {
-    const option = document.createElement("option");
-    option.value = uid;
-    option.textContent = u.fullName || uid;
-    userSelect.appendChild(option);
-  });
-
-  userSelect.addEventListener("change", async (e) => {
-    selectedUID = e.target.value;
-    if (!selectedUID) return;
-
-    const selectedSnap = await get(ref(db, "students/" + selectedUID));
-    const selectedUser = selectedSnap.val();
-
-    profilePic.src = selectedUser.profileImageURL || "default-avatar.png";
-    userName.textContent = selectedUser.fullName || "-";
-    studentID.textContent = selectedUser.studentID || "-";
-    studentCourse.textContent = "Course: " + (selectedUser.course || "-");
-    studentYearSection.textContent = "Year/Section: " + (selectedUser.yearSection || "-");
-    plate.value = selectedUser.plate || "";
-    color.value = selectedUser.color || "";
-    model.value = selectedUser.model || "";
-    type.value = selectedUser.type || "";
-
-    disableFields();
-  });
 });
 
-window.enableEdit = function () {
-  plate.disabled = false;
-  color.disabled = false;
-  model.disabled = false;
-  type.disabled = false;
-  saveBtn.disabled = false;
-};
-
-function disableFields() {
-  plate.disabled = true;
-  color.disabled = true;
-  model.disabled = true;
-  type.disabled = true;
-  saveBtn.disabled = true;
-}
-
-window.saveProfile = function () {
-  if (!selectedUID) {
-    alert("Please select a user.");
-    return;
-  }
-
-  const updatedData = {
-    plate: plate.value,
-    color: color.value,
-    model: model.value,
-    type: type.value
-  };
-console.log("Saving for UID:", selectedUID);
-  update(ref(db, "students/" + selectedUID), updatedData)
-    .then(() => {
-      alert("Profile updated successfully.");
-      disableFields();
-    })
-    .catch((err) => {
-      console.error("Update failed:", err);
-      alert("Error saving profile.");
-    });
-};
-
+// Logout
 document.getElementById("logout")?.addEventListener("click", (e) => {
   e.preventDefault();
   localStorage.removeItem("loggedInUserId");

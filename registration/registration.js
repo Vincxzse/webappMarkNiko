@@ -18,11 +18,12 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const rtdb = getDatabase(app);
 
-function showMessage(message, divId) {
+function showMessage(message, divId, isSuccess = false) {
   const div = document.getElementById(divId);
   if (!div) return;
   div.innerText = message;
   div.style.display = 'block';
+  div.style.backgroundColor = isSuccess ? 'green' : 'red';
   setTimeout(() => div.style.display = 'none', 5000);
 }
 
@@ -40,13 +41,11 @@ window.addEventListener("DOMContentLoaded", () => {
       const msgDiv = document.getElementById("signUpMessage");
 
       if (!fName || !lName || !contact || !address || !email || !password || !confirmPassword) {
-        msgDiv.style.display = "block";
-        msgDiv.textContent = "Please fill out all required fields.";
+        showMessage("Please fill out all required fields.", "signUpMessage");
         return;
       }
       if (password !== confirmPassword) {
-        msgDiv.style.display = "block";
-        msgDiv.textContent = "Passwords do not match!";
+        showMessage("Passwords do not match!", "signUpMessage");
         return;
       }
 
@@ -70,7 +69,6 @@ window.addEventListener("DOMContentLoaded", () => {
       const address = localStorage.getItem("address");
       const email = localStorage.getItem("pEmail");
       const password = localStorage.getItem("rPassword");
-      const confirmPassword = localStorage.getItem("confirmPassword");
 
       const studentID = document.getElementById("studentID").value.trim();
       const course = document.getElementById("course").value.trim();
@@ -79,13 +77,14 @@ window.addEventListener("DOMContentLoaded", () => {
       const color = document.getElementById("color").value.trim();
       const model = document.getElementById("model").value.trim();
       const type = document.getElementById("type").value.trim();
-      const role = document.getElementById("accountType").value;
+      const msgDiv = document.getElementById("signUpMessage");
 
       if (!email || !password) {
         showMessage("Session expired. Please restart the registration.", "signUpMessage");
         return;
       }
-      if (!studentID || !course || !yearSection || !plate || !color || !model || !type || !role) {
+
+      if (!studentID || !course || !yearSection || !plate || !color || !model || !type) {
         showMessage("Please fill all required fields.", "signUpMessage");
         return;
       }
@@ -94,7 +93,6 @@ window.addEventListener("DOMContentLoaded", () => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        // Save to Firestore
         await setDoc(doc(db, "users", user.uid), {
           firstName: fName,
           lastName: lName,
@@ -107,11 +105,9 @@ window.addEventListener("DOMContentLoaded", () => {
           plate,
           color,
           model,
-          type,
-          role
+          type
         });
 
-        // Save to Realtime Database
         await set(ref(rtdb, "students/" + user.uid), {
           firstName: fName,
           lastName: lName,
@@ -126,13 +122,16 @@ window.addEventListener("DOMContentLoaded", () => {
           color,
           model,
           type,
-          role,
           profileImageURL: "",
           vehicleImageURL: ""
         });
 
         localStorage.clear();
-        window.location.href = "../login page/index.html";
+        showMessage("You have successfully registered!", "signUpMessage", true);
+        setTimeout(() => {
+          window.location.href = "../login page/index.html";
+        }, 3000);
+
       } catch (error) {
         showMessage("Error: " + error.message, "signUpMessage");
         console.error(error);

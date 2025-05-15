@@ -1,6 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, getDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
@@ -18,165 +17,137 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
-const rtdb = getDatabase(app);
+const db = getDatabase(app);
 const storage = getStorage(app);
 
-// Sidebar toggle
-document.querySelectorAll('#sidebar .side-menu.top li a').forEach(item => {
-  const li = item.parentElement;
-  item.addEventListener('click', () => {
-    document.querySelectorAll('#sidebar .side-menu.top li').forEach(i => i.classList.remove('active'));
-    li.classList.add('active');
-  });
-});
+// DOM References
+const userName = document.getElementById("userName");
+const studentID = document.getElementById("studentID");
+const studentCourse = document.getElementById("studentCourse");
+const studentYearSection = document.getElementById("studentYearSection");
+const profilePic = document.getElementById("profilePic");
+const plate = document.getElementById("plate");
+const color = document.getElementById("color");
+const model = document.getElementById("model");
+const type = document.getElementById("type");
+const saveBtn = document.getElementById("saveBtn");
 
-// Global variable for profile image
+let currentUserUID = null;
 let selectedImageFile = null;
 
-// Auth check and data loading
-onAuthStateChanged(auth, user => {
-  if (user) {
-    const uid = user.uid;
-    const docRef = doc(db, "users", uid);
-    const userRef = ref(rtdb, 'students/' + uid);
+// Disable vehicle info fields initially
+function disableFields() {
+  plate.disabled = true;
+  color.disabled = true;
+  model.disabled = true;
+  type.disabled = true;
+  saveBtn.disabled = true;
+}
 
-    getDoc(docRef).then(docSnap => {
-      if (docSnap.exists()) {
-        const userData = docSnap.data();
-        document.getElementById('userName').innerText = `${userData.firstName} ${userData.lastName}`;
-      }
-    });
+// Enable editing
+window.enableEdit = () => {
+  plate.disabled = false;
+  color.disabled = false;
+  model.disabled = false;
+  type.disabled = false;
+  saveBtn.disabled = false;
+};
 
-    get(userRef).then(snapshot => {
-      const data = snapshot.val();
-      if (!data) return;
-
-      document.getElementById("plate").value = data.plate || "";
-      document.getElementById("color").value = data.color || "";
-      document.getElementById("model").value = data.model || "";
-      document.getElementById("type").value = data.type || "";
-      document.getElementById("studentID").innerText = data.studentID || "N/A";
-      document.getElementById("studentCourse").innerText = "Course: " + (data.course || "N/A");
-      document.getElementById("studentYearSection").innerText = "Year/Section: " + (data.yearSection || "N/A");
-
-      if (data.profileImageURL) {
-        document.getElementById("profilePic").src = data.profileImageURL;
-      }
-    });
-    function Upload_files(){
-      const fileInput = document.querySelector('#file')
-      const file = fileInput.file[0];
-
-      if (file){
-       const storageRef = ref(storage,"uploads/" + file.name)
-       const uploadTask = uploadBytesResumble(storsgeRef,file)
-       const upload = document.querySelector('upload-label');
-
-      // uploadTask.on ('state_changed' , (snapshot)=>{
-      // const uploadlabel = (snapshot.bytesTransferred/snapshot.totalBytes) * 100;
-      // console.log ("Upload" + Upload + "% Done");
-      // })
-      }else{
-        console.log('no file');
-      }
-      
-    }
-    const upload_btn = document.querySelector('#uploadProfile')
-    upload_btn.addEventListener('click',Upload_files)
-
-    // Profile image selection (but not upload yet)
-    document.getElementById("uploadProfile").addEventListener("change", e => {
-      selectedImageFile = e.target.files[0];
-      if (!selectedImageFile) return;
-
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        document.getElementById("profilePic").src = event.target.result;
-      };
-      reader.readAsDataURL(selectedImageFile);
-    });
-
-    // Save profile info and upload image
-    window.saveProfile = () => {
-      if (!uid) {
-        alert("User not authenticated.");
-        return;
-      }
-
-      const userRef = ref(rtdb, 'students/' + uid);
-      const updates = {
-        plate: document.getElementById("plate").value,
-        color: document.getElementById("color").value,
-        model: document.getElementById("model").value,
-        type: document.getElementById("type").value,
-        studentID: document.getElementById("studentID").innerText,
-        course: document.getElementById("studentCourse").innerText.replace('Course: ', ''),
-        yearSection: document.getElementById("studentYearSection").innerText.replace('Year/Section: ', ''),
-        fullName: document.getElementById("userName").innerText
-      };
-
-      if (selectedImageFile) {
-        const imagePath = storageRef(storage, 'UserImage/' + uid + '.jpg');
-
-        uploadBytes(imagePath, selectedImageFile)
-          .then(() => getDownloadURL(imagePath))
-          .then(url => {
-            updates.profileImageURL = url;
-            return update(userRef, updates);
-          })
-          .then(() => {
-            alert("Profile info and image saved.");
-            selectedImageFile = null;
-          })
-          .catch(error => {
-            console.error("Image upload error:", error);
-            alert("Error uploading image: " + error.message);
-          });
-      } else {
-        update(userRef, updates)
-          .then(() => alert("Profile info saved."))
-          .catch(error => {
-            console.error("Profile update error:", error);
-            alert("Error saving profile: " + error.message);
-          });
-      }
-    };
-
-    // General file upload
-    document.getElementById("generalFileInput")?.addEventListener("change", e => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const fileName = `${Date.now()}_${file.name}`;
-      const filePath = storageRef(storage, 'UploadedFiles/' + fileName);
-
-      uploadBytes(filePath, file)
-        .then(() => getDownloadURL(filePath))
-        .then(url => {
-          const fileData = {
-            name: file.name,
-            uploadedAt: new Date().toISOString(),
-            url: url
-          };
-          const fileRef = ref(rtdb, 'uploadedFiles/' + uid + '/' + fileName.replace(/\./g, '_'));
-          return update(fileRef, fileData);
-        })
-        .then(() => alert("File uploaded and saved."))
-        .catch(console.error);
-    });
-
-  } else {
+// Load User Info
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
     window.location.href = "../login page/index.html";
+    return;
   }
+
+  currentUserUID = user.uid;
+  const userRef = ref(db, "students/" + currentUserUID);
+  const snapshot = await get(userRef);
+
+  if (!snapshot.exists()) return;
+  const data = snapshot.val();
+
+  // Populate data
+  userName.innerText = data.fullName || "No Name";
+  studentID.innerText = data.studentID || "N/A";
+  studentCourse.innerText = `Course: ${data.course || "N/A"}`;
+  studentYearSection.innerText = `Year/Section: ${data.yearSection || "N/A"}`;
+  plate.value = data.plate || "";
+  color.value = data.color || "";
+  model.value = data.model || "";
+  type.value = data.type || "";
+  if (data.profileImageURL) {
+    profilePic.src = data.profileImageURL;
+  }
+
+  disableFields();
 });
+
+// Upload profile preview
+document.getElementById("uploadProfile")?.addEventListener("change", (e) => {
+  selectedImageFile = e.target.files[0];
+  if (!selectedImageFile) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    profilePic.src = event.target.result;
+  };
+  reader.readAsDataURL(selectedImageFile);
+});
+
+// Save Profile Info
+window.saveProfile = () => {
+  if (!currentUserUID) return;
+
+  const updates = {
+    plate: plate.value,
+    color: color.value,
+    model: model.value,
+    type: type.value,
+    studentID: studentID.innerText,
+    course: studentCourse.innerText.replace("Course: ", ""),
+    yearSection: studentYearSection.innerText.replace("Year/Section: ", ""),
+    fullName: userName.innerText
+  };
+
+  const userRef = ref(db, "students/" + currentUserUID);
+
+  if (selectedImageFile) {
+    const imageRef = storageRef(storage, "UserImage/" + currentUserUID + ".jpg");
+
+    uploadBytes(imageRef, selectedImageFile)
+      .then(() => getDownloadURL(imageRef))
+      .then((url) => {
+        updates.profileImageURL = url;
+        return update(userRef, updates);
+      })
+      .then(() => {
+        alert("Profile info and image updated successfully.");
+        disableFields();
+        selectedImageFile = null;
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("Image upload failed.");
+      });
+  } else {
+    update(userRef, updates)
+      .then(() => {
+        alert("Profile updated.");
+        disableFields();
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("Error updating profile.");
+      });
+  }
+};
 
 // Logout
-document.getElementById('logout')?.addEventListener('click', e => {
+document.getElementById("logout")?.addEventListener("click", (e) => {
   e.preventDefault();
-  localStorage.removeItem('loggedInUserId');
+  localStorage.removeItem("loggedInUserId");
   signOut(auth).then(() => {
-    window.location.href = '../login page/index.html';
+    window.location.href = "../login page/index.html";
   });
 });
-

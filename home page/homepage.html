@@ -15,7 +15,7 @@
         <h1>DLC VEHICLES MONITORING</h1>
     </header>
     <section id="sidebar">
-        <ul class="side-menu top">
+        <ul class="side-menu top">  
             <li class="active">
                 <a href="#">
                     <i class='bx bxs-dashboard'></i>
@@ -57,29 +57,32 @@
           <input type="file" id="uploadProfile" hidden>
         </div>
 
-        <h2 id="userName">Loading...</h2>
-        <p class="student-id" id="studentID">Loading...</p>
-        <p id="studentCourse">Loading...</p>
-        <p id="studentYearSection">Loading...</p>
+      <h2 id="userName">Select a user</h2>
+      <p class="student-id" id="studentID">-</p>
+      <p id="studentCourse">-</p>
+      <p id="studentYearSection">-</p>
 
-        <div class="vehicle-info">
-          <div class="info-field">
-            <label>Plate No.</label>
-            <input type="text" id="plate" placeholder="Enter Plate No.">
-          </div>
-          <div class="info-field">
-            <label>Color</label>
-            <input type="text" id="color" placeholder="Enter Color">
-          </div>
-          <div class="info-field">
-            <label>Model</label>
-            <input type="text" id="model" placeholder="Enter Model">
-          </div>
-          <div class="info-field">
-            <label>Vehicle Type</label>
-            <input type="text" id="type" placeholder="Enter Vehicle Type">
-          </div>
+      <div class="vehicle-info">
+        <div class="info-field">
+          <label>Plate No.</label>
+          <input type="text" id="plate" disabled>
         </div>
+        <div class="info-field">
+          <label>Color</label>
+          <input type="text" id="color" disabled>
+        </div>
+        <div class="info-field">
+          <label>Model</label>
+          <input type="text" id="model" disabled>
+        </div>
+        <div class="info-field">
+          <label>Vehicle Type</label>
+          <input type="text" id="type" disabled>
+        </div>
+      </div>
+            <div class="button-group" style="display: flex; justify-content: space-between; margin-top: 20px;">
+        <button class="edit-btn" onclick="enableEdit()">EDIT</button>
+        <button class="save-btn" id="saveBtn" onclick="saveProfile()" disabled>SAVE</button>
 
         
       </div>
