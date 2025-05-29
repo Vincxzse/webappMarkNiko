@@ -3,7 +3,7 @@ import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/fi
 import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-// Firebase Config
+// Firebase setup
 const firebaseConfig = {
   apiKey: "AIzaSyB_rXWCXqQdi6tshyUiKLiDfSKqMzqu6KQ",
   authDomain: "login-b3b32.firebaseapp.com",
@@ -14,13 +14,12 @@ const firebaseConfig = {
   databaseURL: "https://login-b3b32-default-rtdb.firebaseio.com/"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 const storage = getStorage(app);
 
-// DOM References
+// DOM refs
 const userName = document.getElementById("userName");
 const studentID = document.getElementById("studentID");
 const studentCourse = document.getElementById("studentCourse");
@@ -35,7 +34,7 @@ const saveBtn = document.getElementById("saveBtn");
 let currentUserUID = null;
 let selectedImageFile = null;
 
-// Disable vehicle info fields initially
+// Disable editing fields
 function disableFields() {
   plate.disabled = true;
   color.disabled = true;
@@ -44,7 +43,6 @@ function disableFields() {
   saveBtn.disabled = true;
 }
 
-// Enable editing
 window.enableEdit = () => {
   plate.disabled = false;
   color.disabled = false;
@@ -53,7 +51,7 @@ window.enableEdit = () => {
   saveBtn.disabled = false;
 };
 
-// Load User Info
+// Load user info
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "../login page/index.html";
@@ -67,7 +65,6 @@ onAuthStateChanged(auth, async (user) => {
   if (!snapshot.exists()) return;
   const data = snapshot.val();
 
-  // Populate data
   userName.innerText = data.fullName || "No Name";
   studentID.innerText = data.studentID || "N/A";
   studentCourse.innerText = `Course: ${data.course || "N/A"}`;
@@ -76,14 +73,12 @@ onAuthStateChanged(auth, async (user) => {
   color.value = data.color || "";
   model.value = data.model || "";
   type.value = data.type || "";
-  if (data.profileImageURL) {
-    profilePic.src = data.profileImageURL;
-  }
+  if (data.profileImageURL) profilePic.src = data.profileImageURL;
 
   disableFields();
 });
 
-// Upload profile preview
+// Upload image preview
 document.getElementById("uploadProfile")?.addEventListener("change", (e) => {
   selectedImageFile = e.target.files[0];
   if (!selectedImageFile) return;
@@ -95,7 +90,7 @@ document.getElementById("uploadProfile")?.addEventListener("change", (e) => {
   reader.readAsDataURL(selectedImageFile);
 });
 
-// Save Profile Info
+// Save profile info
 window.saveProfile = () => {
   if (!currentUserUID) return;
 
@@ -114,7 +109,6 @@ window.saveProfile = () => {
 
   if (selectedImageFile) {
     const imageRef = storageRef(storage, "UserImage/" + currentUserUID + ".jpg");
-
     uploadBytes(imageRef, selectedImageFile)
       .then(() => getDownloadURL(imageRef))
       .then((url) => {
@@ -150,4 +144,49 @@ document.getElementById("logout")?.addEventListener("click", (e) => {
   signOut(auth).then(() => {
     window.location.href = "../login page/index.html";
   });
+});
+
+// ====== SECTION NAVIGATION ======
+const dashboardBtn = document.getElementById("dashboardBtn");
+const historyBtn = document.getElementById("historyBtn");
+const profileBtn = document.getElementById("profileBtn");
+const settingsBtn = document.getElementById("settingsBtn");
+
+const dashboardSection = document.getElementById("dashboardSection");
+const historySection = document.getElementById("historySection");
+const profileSection = document.getElementById("profileSection");
+const settingsSection = document.getElementById("settingsSection");
+
+function showSection(sectionToShow) {
+  [dashboardSection, historySection, profileSection, settingsSection].forEach(sec => sec.style.display = "none");
+  sectionToShow.style.display = "block";
+}
+
+function setActiveTab(btn) {
+  document.querySelectorAll(".side-menu.top li").forEach(li => li.classList.remove("active"));
+  btn.parentElement.classList.add("active");
+}
+
+dashboardBtn?.addEventListener("click", e => {
+  e.preventDefault();
+  showSection(dashboardSection);
+  setActiveTab(dashboardBtn);
+});
+
+historyBtn?.addEventListener("click", e => {
+  e.preventDefault();
+  showSection(historySection);
+  setActiveTab(historyBtn);
+});
+
+profileBtn?.addEventListener("click", e => {
+  e.preventDefault();
+  showSection(profileSection);
+  setActiveTab(profileBtn);
+});
+
+settingsBtn?.addEventListener("click", e => {
+  e.preventDefault();
+  showSection(settingsSection);
+  setActiveTab(settingsBtn);
 });
