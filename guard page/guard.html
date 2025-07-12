@@ -6,6 +6,7 @@
   <title>Guard Dashboard</title>
   <script src="https://unpkg.com/qr-scanner@1.4.2/qr-scanner.umd.min.js"></script>
   <link rel="stylesheet" href="../home page/style.css" />
+  <link rel="stylesheet" href="./style.css" />
   <script type="module" src="guard.js"></script>
 </head>
 <body>
@@ -18,7 +19,7 @@
     <ul class="side-menu top">
       <li class="active"><a href="#" id="dashboardBtn"><span class="text">Dashboard</span></a></li>
       <li><a href="#" id="scannerBtn"><span class="text">Scanner</span></a></li>
-      <li><a href="#" id="settingsBtn"><span class="text">History</span></a></li>
+      <li><a href="#" id="settingsBtn"><span class="text">Settings</span></a></li>
       <li><a href="#" id="logout"><span class="text">Logout</span></a></li>
     </ul>
   </section>
@@ -45,6 +46,37 @@
     <div id="settingsSection" class="page-section">
       <h2>Settings</h2>
       <p>Settings content for guards...</p>
+    </div>
+  </div>
+
+  <!-- Student Info Popup -->
+  <div id="studentPopup" class="popup hidden">
+    <div class="popup-content">
+      <span id="closePopup" class="close-btn">&times;</span>
+      <img id="popupProfile" class="popup-profile" src="" alt="Profile Picture" />
+      <h3 id="popupFullName"></h3>
+      <div class="id-container">
+        <p><strong><span id="popupStudentID"></span></strong></p>
+        <p class="user-role">Student</p>
+      </div>
+      <div class="info-container">
+        <div class="info-set">
+          <p><strong>Plate No.</strong></p>
+          <p class="info-data" id="popupPlate"></p>
+        </div>
+        <div class="info-set">
+          <p><strong>Color</strong></p>
+          <p class="info-data" id="popupColor"></p>
+        </div>
+        <div class="info-set">
+          <p><strong>Model</strong></p>
+          <p class="info-data" id="popupModel"></p>
+        </div>
+        <div class="info-set">
+          <p><strong>Vehicle Type</strong></p>
+          <p class="info-data" id="popupType"></p>
+        </div>
+      </div>
     </div>
   </div>
 </body>

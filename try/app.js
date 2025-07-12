@@ -1,19 +1,18 @@
+// ✅ Import from Firebase CDN
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
-import { initializeApp } from "firebase-app.js";
-import {getStorage} from "firebase/storage"; 
 
-// ✅ Your Firebase config (replace with real one)
+// ✅ Your Firebase config
 const firebaseConfig = {
-  apiKey: "AIzaSyREAL_KEY",
-  authDomain: "database-ac117.firebaseapp.com",
-  projectId: "database-ac117",
-  storageBucket: "database-ac117.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abcdef123456"
+  apiKey: "AIzaSyB_rXWCXqQdi6tshyUiKLiDfSKqMzqu6KQ",
+  authDomain: "login-b3b32.firebaseapp.com",
+  projectId: "login-b3b32",
+  storageBucket: "login-b3b32.appspot.com", // ✅ must end with .appspot.com
+  messagingSenderId: "1078150727311",
+  appId: "1:1078150727311:web:42c7bde4a5482c5daad2fa"
 };
 
-// ✅ Initialize Firebase
+// ✅ Initialize Firebase and Storage
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 
@@ -25,7 +24,7 @@ const downloadLink = document.getElementById("downloadLink");
 
 let selectedFile = null;
 
-// 🖼 Preview the image
+// 🖼️ Preview the image
 uploadInput.addEventListener("change", (e) => {
   selectedFile = e.target.files[0];
   if (!selectedFile) return;
@@ -37,7 +36,7 @@ uploadInput.addEventListener("change", (e) => {
   reader.readAsDataURL(selectedFile);
 });
 
-// ⬆ Upload to Firebase Storage
+// ⬆ Upload image to Firebase Storage
 saveBtn.addEventListener("click", () => {
   if (!selectedFile) {
     alert("Please select an image.");

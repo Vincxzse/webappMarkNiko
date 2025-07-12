@@ -52,25 +52,22 @@
   <script>
     function togglePassword(id, icon) {
       const input = document.getElementById(id);
-      const isHidden = input.type === "password";
-      input.type = isHidden ? "text" : "password";
+      input.type = input.type === "password" ? "text" : "password";
       icon.classList.toggle("fa-eye");
       icon.classList.toggle("fa-eye-slash");
     }
 
-    document.getElementById("signInButton").addEventListener("click", function () {
-      window.location.href = '../login page/index.html';
+    document.getElementById("signInButton").addEventListener("click", () => {
+      window.location.href = "../login page/index.html";
     });
 
     function validateContact(input) {
       input.value = input.value.replace(/[^0-9+]/g, '');
       if ((input.value.match(/\+/g) || []).length > 1 || (input.value.includes('+') && input.value[0] !== '+')) {
-        input.value = input.value.replace(/\+/g, '');
-        input.value = '+' + input.value;
+        input.value = '+' + input.value.replace(/\+/g, '');
       }
     }
 
-    // Validation for empty fields and password match
     document.getElementById("registerForm").addEventListener("submit", function (e) {
       e.preventDefault();
 
@@ -83,43 +80,28 @@
       const confirmPassword = document.getElementById("confirmPassword").value;
       const msgDiv = document.getElementById("signUpMessage");
 
-      // Check for empty fields
       if (!fName || !lName || !contact || !address || !email || !password || !confirmPassword) {
         msgDiv.style.display = "block";
         msgDiv.textContent = "Please fill out all required fields.";
         return;
       }
 
-      // Check if passwords match
       if (password !== confirmPassword) {
         msgDiv.style.display = "block";
         msgDiv.textContent = "Passwords do not match!";
         return;
       }
 
-      // If validation passes, hide message and redirect
       msgDiv.style.display = "none";
+      localStorage.setItem("fName", fName);
+      localStorage.setItem("lName", lName);
+      localStorage.setItem("contact", contact);
+      localStorage.setItem("address", address);
+      localStorage.setItem("pEmail", email);
+      localStorage.setItem("rPassword", password);
+      localStorage.setItem("confirmPassword", confirmPassword);
       window.location.href = "index2.html";
     });
-  </script>
-  <script>
-    function togglePassword(id, icon) {
-      const input = document.getElementById(id);
-      input.type = input.type === "password" ? "text" : "password";
-      icon.classList.toggle("fa-eye");
-      icon.classList.toggle("fa-eye-slash");
-    }
-
-    document.getElementById("signInButton").addEventListener("click", () => {
-      window.location.href = "../login page/index.html";
-    });
-
-    function validateContact(input) {
-      input.value = input.value.replace(/[^0-9+]/g, '');
-      if ((input.value.match(/\\+/g) || []).length > 1 || (input.value.includes('+') && input.value[0] !== '+')) {
-        input.value = '+' + input.value.replace(/\\+/g, '');
-      }
-    }
   </script>
 
 </body>

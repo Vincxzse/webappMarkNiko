@@ -3,7 +3,6 @@ import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/fi
 import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-// Firebase setup
 const firebaseConfig = {
   apiKey: "AIzaSyB_rXWCXqQdi6tshyUiKLiDfSKqMzqu6KQ",
   authDomain: "login-b3b32.firebaseapp.com",
@@ -11,7 +10,7 @@ const firebaseConfig = {
   storageBucket: "login-b3b32.appspot.com",
   messagingSenderId: "1078150727311",
   appId: "1:1078150727311:web:42c7bde4a5482c5daad2fa",
-  databaseURL: "https://login-b3b32-default-rtdb.firebaseio.com/"
+  databaseURL: "https://login-b3b32-default-rtdb.firebaseio.com"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -19,7 +18,10 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 const storage = getStorage(app);
 
-// DOM refs
+let currentUserUID = null;
+let selectedImageFile = null;
+
+// DOM elements
 const userName = document.getElementById("userName");
 const studentID = document.getElementById("studentID");
 const studentCourse = document.getElementById("studentCourse");
@@ -31,10 +33,18 @@ const model = document.getElementById("model");
 const type = document.getElementById("type");
 const saveBtn = document.getElementById("saveBtn");
 
-let currentUserUID = null;
-let selectedImageFile = null;
+// Sections
+const dashboardSection = document.getElementById("qrSection");
+const historySection = document.getElementById("historySection");
+const profileSection = document.getElementById("profileSection");
+const settingsSection = document.getElementById("settingsSection");
 
-// Disable editing fields
+// Navigation buttons
+const dashboardBtn = document.getElementById("dashboardBtn");
+const historyBtn = document.getElementById("historyBtn");
+const profileBtn = document.getElementById("profileBtn");
+const settingsBtn = document.getElementById("settingsBtn");
+
 function disableFields() {
   plate.disabled = true;
   color.disabled = true;
@@ -51,7 +61,6 @@ window.enableEdit = () => {
   saveBtn.disabled = false;
 };
 
-// Load user info
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "../login page/index.html";
@@ -65,6 +74,12 @@ onAuthStateChanged(auth, async (user) => {
   if (!snapshot.exists()) return;
   const data = snapshot.val();
 
+  document.getElementById("qrUserName").textContent = data.fullName || "Unknown";
+  document.getElementById("qrStudentID").textContent = data.studentID || "-";
+  document.getElementById("qrRole").textContent = "Student";
+  document.getElementById("userQRCode").src = data.qrCode || "";
+  document.getElementById("qrProfilePic").src = data.profileImageURL || "../pictures/default-avatar-icon.png";
+
   userName.innerText = data.fullName || "No Name";
   studentID.innerText = data.studentID || "N/A";
   studentCourse.innerText = `Course: ${data.course || "N/A"}`;
@@ -73,12 +88,36 @@ onAuthStateChanged(auth, async (user) => {
   color.value = data.color || "";
   model.value = data.model || "";
   type.value = data.type || "";
-  if (data.profileImageURL) profilePic.src = data.profileImageURL;
+  profilePic.src = data.profileImageURL || "../pictures/default-avatar-icon.png";
 
   disableFields();
+
+  // ✅ Load logs
+  const logsRef = ref(db, `logs/${currentUserUID}`);
+  const logsSnap = await get(logsRef);
+  const tbody = document.querySelector("#historyTable tbody");
+  tbody.innerHTML = "";
+
+  if (logsSnap.exists()) {
+    const logs = logsSnap.val();
+    for (const date in logs) {
+      if (typeof logs[date] !== "object") continue;
+      const entries = Object.values(logs[date]);
+      const timeIn = entries.find(e => e.action === "time_in")?.time || "-";
+      const timeOut = [...entries].reverse().find(e => e.action === "time_out")?.time || "-";
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${date}</td>
+        <td>${timeIn}</td>
+        <td>${timeOut}</td>
+      `;
+      tbody.appendChild(row);
+    }
+  }
 });
 
-// Upload image preview
+// Upload profile
 document.getElementById("uploadProfile")?.addEventListener("change", (e) => {
   selectedImageFile = e.target.files[0];
   if (!selectedImageFile) return;
@@ -90,7 +129,7 @@ document.getElementById("uploadProfile")?.addEventListener("change", (e) => {
   reader.readAsDataURL(selectedImageFile);
 });
 
-// Save profile info
+// Save profile
 window.saveProfile = () => {
   if (!currentUserUID) return;
 
@@ -108,7 +147,7 @@ window.saveProfile = () => {
   const userRef = ref(db, "students/" + currentUserUID);
 
   if (selectedImageFile) {
-    const imageRef = storageRef(storage, "UserImage/" + currentUserUID + ".jpg");
+    const imageRef = storageRef(storage, `profileImages/${currentUserUID}/profile.jpg`);
     uploadBytes(imageRef, selectedImageFile)
       .then(() => getDownloadURL(imageRef))
       .then((url) => {
@@ -116,23 +155,23 @@ window.saveProfile = () => {
         return update(userRef, updates);
       })
       .then(() => {
-        alert("Profile info and image updated successfully.");
+        alert("Profile updated successfully!");
         disableFields();
         selectedImageFile = null;
       })
       .catch((err) => {
-        console.error(err);
-        alert("Image upload failed.");
+        console.error("Upload/update failed:", err);
+        alert("Failed to update profile. Check console.");
       });
   } else {
     update(userRef, updates)
       .then(() => {
-        alert("Profile updated.");
+        alert("Profile updated successfully!");
         disableFields();
       })
       .catch((err) => {
         console.error(err);
-        alert("Error updating profile.");
+        alert("Failed to update profile.");
       });
   }
 };
@@ -140,23 +179,12 @@ window.saveProfile = () => {
 // Logout
 document.getElementById("logout")?.addEventListener("click", (e) => {
   e.preventDefault();
-  localStorage.removeItem("loggedInUserId");
   signOut(auth).then(() => {
     window.location.href = "../login page/index.html";
   });
 });
 
-// ====== SECTION NAVIGATION ======
-const dashboardBtn = document.getElementById("dashboardBtn");
-const historyBtn = document.getElementById("historyBtn");
-const profileBtn = document.getElementById("profileBtn");
-const settingsBtn = document.getElementById("settingsBtn");
-
-const dashboardSection = document.getElementById("dashboardSection");
-const historySection = document.getElementById("historySection");
-const profileSection = document.getElementById("profileSection");
-const settingsSection = document.getElementById("settingsSection");
-
+// Navigation
 function showSection(sectionToShow) {
   [dashboardSection, historySection, profileSection, settingsSection].forEach(sec => sec.style.display = "none");
   sectionToShow.style.display = "block";
@@ -190,3 +218,6 @@ settingsBtn?.addEventListener("click", e => {
   showSection(settingsSection);
   setActiveTab(settingsBtn);
 });
+
+// Default
+showSection(dashboardSection);
