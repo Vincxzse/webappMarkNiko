@@ -219,5 +219,26 @@ settingsBtn?.addEventListener("click", e => {
   setActiveTab(settingsBtn);
 });
 
+// QR Code Download
+document.getElementById("downloadQR")?.addEventListener("click", () => {
+  const qrImg = document.getElementById("userQRCode");
+
+  if (!qrImg || !qrImg.src) {
+    alert("QR Code not available.");
+    return;
+  }
+
+  // Create a temporary <a> element
+  const link = document.createElement("a");
+  link.href = qrImg.src;
+  link.download = "my_qr_code.png";
+
+  // Trigger the download
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+});
+
+
 // Default
 showSection(dashboardSection);
